@@ -6,9 +6,12 @@
 //
 
 import Foundation
+import ArgumentParser
 
-enum SemanticVersionComponent {
+enum SemanticVersionComponent: String {
     case major
     case minor
     case patch
 }
+
+extension SemanticVersionComponent: ExpressibleByArgument { }

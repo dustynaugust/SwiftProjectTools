@@ -1,5 +1,5 @@
 //
-//  IncrementPBXprojError.swift
+//  PBXProjToolError.swift
 //  
 //
 //  Created by Dustyn August on 9/26/24.

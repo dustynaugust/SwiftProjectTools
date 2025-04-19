@@ -10,8 +10,8 @@ import Foundation
 
 enum PBXProjValidator {
     // Combine all validations into one function
-    static func validate(
-        _ filePath: String
+    static func validatePBXproj(
+        at filePath: String
     ) throws -> String {
         try validateFileExists(at: filePath)
         try validateFileExtension(for: filePath)
@@ -20,6 +20,22 @@ enum PBXProjValidator {
         try validateFileCanBeParsed(at: filePath)
         try validateIsFile(at: filePath)
         return try fileString(at: filePath)
+    }
+    
+    static func validate(
+        target: String
+    ) throws {
+        guard
+            !target.isEmpty
+        else {
+            throw ValidationError("Target must be specified.")
+        }
+    }
+    
+    static func validate(configurations: [String]) throws {
+        guard !configurations.isEmpty else {
+            throw ValidationError("At least one configuration must be specified.")
+        }
     }
 }
 
