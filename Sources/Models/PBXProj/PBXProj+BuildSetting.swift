@@ -1,6 +1,6 @@
 //
 //  PBXProj+BuildSetting.swift
-//  PBXProjTool
+//  SwiftProjectTools
 //
 //  Created by Dustyn August on 4/19/25.
 //
@@ -11,4 +11,3 @@ extension PBXProj {
         case MARKETING_VERSION 
     }
 }
-

@@ -1,6 +1,6 @@
 //
 //  PBXProj.swift
-//  PBXProjTool
+//  SwiftProjectTools
 //
 //  Created by Dustyn August on 4/19/25.
 //
@@ -16,7 +16,7 @@ struct PBXProj {
 extension PBXProj {
     init(
         from project: ProjectOptions,
-        using runner: CommandRunner
+        using runner: ActionRunner
     ) throws {
         let contents = try PBXProjValidator.validatePBXproj(at: project.pbxprojFilePath)
         try PBXProjValidator.validate(target: project.target)

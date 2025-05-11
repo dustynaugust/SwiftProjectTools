@@ -4,12 +4,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "PBXProjTool",
+    name: "SwiftProjectTools",
     platforms: [
         .macOS(.v15),
     ],
     products: [
-        .executable(name: "pbxproj-tool", targets: ["pbxproj-tool"]),
+        .executable(name: "swift-project-tools", targets: ["swift-project-tools"]),
     ],
     dependencies: [
         .package(
@@ -18,10 +18,8 @@ let package = Package(
         ),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .executableTarget(
-            name: "pbxproj-tool",
+            name: "swift-project-tools",
             dependencies: [
                 .product(
                     name: "ArgumentParser",

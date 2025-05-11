@@ -12,7 +12,9 @@ struct SemanticVersionNumber {
     let minor: Int
     let patch: Int
 
-    init?(from string: String) {
+    init?(
+        from string: String
+    ) {
         let components = string
             .components(separatedBy: ".")
             .compactMap(Int.init)

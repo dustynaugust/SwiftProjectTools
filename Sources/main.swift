@@ -1,4 +1,13 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+import ArgumentParser
 
-PBXProjTool.main()
+SwiftProjectTools.main()
+
+struct SwiftProjectTools: ParsableCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "swift-project-tools",
+        abstract: "Tools for updating Swift and Xcode projects.",
+        subcommands: [
+            Increment.self
+        ]
+    )
+}

@@ -1,10 +1,11 @@
 //
 //  IncrementVersionNumber.swift
-//  PBXProjTool
+//  SwiftProjectTools
 //
 //  Created by Dustyn August on 4/19/25.
 //
 
+import Foundation
 import ArgumentParser
 
 struct IncrementVersionNumber: ParsableCommand {
@@ -14,15 +15,16 @@ struct IncrementVersionNumber: ParsableCommand {
     )
     
     @Argument(help: "The version component to increment (major, minor, patch)")
-    var component: SemanticVersionComponent
+    var component: SemanticVersionNumber.Component
     
     @OptionGroup
     var project: ProjectOptions
     
     mutating func run() throws {
-        let runner = CommandRunner(loggingEnabled: project.loggingEnabled)
+        let runner = ActionRunner(loggingEnabled: project.loggingEnabled)
         let pbxproj = try PBXProj(from: project, using: runner)
-        let pbxprojValue: PBXProj.BuildSetting = .CURRENT_PROJECT_VERSION
+        let pbxprojValue: PBXProj.BuildSetting = .MARKETING_VERSION
+        
         for (configuration, buildConfig) in pbxproj.configurations {
             let currentValue = try runner.extract(.pbxproj(pbxprojValue), from: buildConfig.value)
             
@@ -45,20 +47,21 @@ struct IncrementVersionNumber: ParsableCommand {
     }
 }
 
+
 private extension IncrementVersionNumber {
     private func incremented(
-        versionNumber: SemanticVersionComponent,
+        versionNumber component: SemanticVersionNumber.Component,
         in currentValueString: String,
         target: String,
         configuration: String
-    ) throws -> String {
+    ) throws(SwiftProjectToolsError) -> String {
         guard
             let currentSemanticVersion = SemanticVersionNumber(from: currentValueString)
         else {
-            throw PBXProjToolError.semanticVersionNumber(target: target, configuration: configuration)
+            throw .semanticVersionNumberError(target: target, configuration: configuration)
         }
 
-        switch versionNumber {
+        switch component {
         case .major:
             let newValue = currentSemanticVersion.major + 1
             return "\(newValue).0.0"
@@ -73,3 +76,4 @@ private extension IncrementVersionNumber {
         }
     }
 }
+

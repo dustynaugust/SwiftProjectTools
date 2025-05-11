@@ -1,6 +1,6 @@
 //
 //  ProjectOptions.swift
-//  PBXProjTool
+//  SwiftProjectTools
 //
 //  Created by Dustyn August on 4/19/25.
 //
