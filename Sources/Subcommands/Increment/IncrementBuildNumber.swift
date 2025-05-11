@@ -1,11 +1,12 @@
 //
 //  IncrementBuildNumber.swift
-//  PBXProjTool
+//  SwiftProjectTools
 //
 //  Created by Dustyn August on 4/19/25.
 //
 
 import ArgumentParser
+import Foundation
 
 struct IncrementBuildNumber: ParsableCommand {
     static let configuration = CommandConfiguration(
@@ -17,7 +18,7 @@ struct IncrementBuildNumber: ParsableCommand {
     var project: ProjectOptions
     
     mutating func run() throws {
-        let runner = CommandRunner(loggingEnabled: project.loggingEnabled)
+        let runner = ActionRunner(loggingEnabled: project.loggingEnabled)
         let pbxproj = try PBXProj(from: project, using: runner)
         let buildSetting: PBXProj.BuildSetting = .CURRENT_PROJECT_VERSION
         
@@ -47,11 +48,11 @@ private extension IncrementBuildNumber {
         buildNumber currentValueString: String,
         target: String,
         configuration: String
-    ) throws -> String {
+    ) throws(SwiftProjectToolsError) -> String {
         guard
             let currentValue = Int(currentValueString)
         else {
-            throw PBXProjToolError.buildNumber(target: target, configuration: configuration)
+            throw .buildNumberError(target: target, configuration: configuration)
         }
 
         return "\(currentValue + 1)"

@@ -1,2 +1,2 @@
-# PBXProjTool
-A tool for updating values in a .pbxproj file.
+# SwiftProjectTools
+Tools for updating Swift and Xcode projects.

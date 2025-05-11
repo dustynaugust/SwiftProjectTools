@@ -1,32 +1,32 @@
 //
-//  CommandRunner.swift
-//  PBXProjTool
+//  ActionRunner.swift
+//  SwiftProjectTools
 //
 //  Created by Dustyn August on 4/19/25.
 //
 
 import Foundation
 
-struct CommandRunner {
+struct ActionRunner {
     let loggingEnabled: Bool
     
     func extract(
-        _ command: ExtractCommand,
+        _ action: Extract,
         from: String
     ) throws -> String {
-        try run(command, input: from)
+        try run(action, input: from)
     }
     
     func update(
-        _ command: UpdateCommand
+        _ action: Update
     ) throws {
-        let _ = try run(command, input: nil)
+        let _ = try run(action, input: nil)
     }
 }
 
-private extension CommandRunner {
+private extension ActionRunner {
     private func run(
-        _ command: some Command,
+        _ action: some Action,
         input: String? = nil
     ) throws -> String {
         let task = Process()
@@ -34,10 +34,10 @@ private extension CommandRunner {
 
         task.standardOutput = pipe
         task.standardError = pipe
-        task.arguments = ["-c", command.value]
+        task.arguments = ["-c", action.value]
         task.executableURL = URL(fileURLWithPath: "/bin/zsh")
         
-        log(command: command.value)
+        log(action: action.value)
         
         if let input {
             let inputPipe = Pipe()
@@ -51,14 +51,14 @@ private extension CommandRunner {
         guard
             let data = try pipe.fileHandleForReading.readToEnd()
         else {
-            log("empty data returned from command: \(string(for: command.value))")
+            log("empty data returned from action: \(string(for: action.value))")
             return ""
         }
 
         guard
             let output = String(data: data, encoding: .utf8)
         else {
-            let error = PBXProjToolError.parseCommandOutput
+            let error = SwiftProjectToolsError.parseActionOutputError
             output(error)
             throw error
         }
@@ -68,57 +68,69 @@ private extension CommandRunner {
         return result
     }
     
-    private func log(_ message: String) {
+    private func output(
+        _ message: String
+    ) {
+        print(message)
+    }
+
+    private func log(
+        _ message: String
+    ) {
         guard loggingEnabled else { return }
 
         output(message)
     }
 
-    private func log(command: String) {
+    private func log(
+        action: String
+    ) {
         guard loggingEnabled else { return }
 
-        output("COMMAND: ----------\n\(string(for: command))\n----------")
+        output("ACTION: ----------\n\(string(for: action))\n----------")
     }
 
-    private func log(input: String) {
+    private func log(
+        input: String
+    ) {
         guard loggingEnabled else { return }
 
         output("INPUT: ----------\n\(input)\n----------")
     }
 
-    private func log(result: String) {
+    private func log(
+        result: String
+    ) {
         guard loggingEnabled else { return }
 
         output("RESULT: ----------\n\(result)\n----------")
     }
 
-    func output(_ message: String) {
-        print(message)
-    }
-
     private func output(
-        _ error: PBXProjToolError,
+        _ error: SwiftProjectToolsError,
         function: String = #function
     ) {
-        var message = ""
-        if let localizedDescription = error.errorDescription {
-            message.append(" Description: \(localizedDescription).")
+        output("ERROR in \(function)")
+        
+        let errorMessage: String
+        if let errorDescription = error.errorDescription {
+            errorMessage = errorDescription
+            
+        } else {
+            errorMessage = "No description available."
         }
-
-        if let recoverySuggestion = error.recoverySuggestion {
-            message.append(" Suggestion: \(recoverySuggestion).")
-        }
-
-
-        output("ERROR in \(function).\(message)")
+        
+        output("Error: \(errorMessage)")
     }
 
-    private func string(for command: String) -> String {
-        if command.isEmpty {
+    private func string(
+        for action: String
+    ) -> String {
+        if action.isEmpty {
             return "\"\""
         } else {
 
-            return command
+            return action
         }
     }
 }

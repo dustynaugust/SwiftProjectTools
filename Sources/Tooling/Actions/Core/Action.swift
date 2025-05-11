@@ -1,5 +1,5 @@
 //
-//  Command.swift
+//  Action.swift
 //  
 //
 //  Created by Dustyn August on 9/26/24.
@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol Command {
+protocol Action {
     var value: String { get }
 }
