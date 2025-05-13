@@ -48,11 +48,11 @@ private extension IncrementBuildNumber {
         buildNumber currentValueString: String,
         target: String,
         configuration: String
-    ) throws(SwiftProjectToolsError) -> String {
+    ) throws -> String {
         guard
             let currentValue = Int(currentValueString)
         else {
-            throw .buildNumberError(target: target, configuration: configuration)
+            throw SwiftProjectToolsError.buildNumberError(target: target, configuration: configuration)
         }
 
         return "\(currentValue + 1)"

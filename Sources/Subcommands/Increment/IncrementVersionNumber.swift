@@ -54,11 +54,11 @@ private extension IncrementVersionNumber {
         in currentValueString: String,
         target: String,
         configuration: String
-    ) throws(SwiftProjectToolsError) -> String {
+    ) throws -> String {
         guard
             let currentSemanticVersion = SemanticVersionNumber(from: currentValueString)
         else {
-            throw .semanticVersionNumberError(target: target, configuration: configuration)
+            throw SwiftProjectToolsError.semanticVersionNumberError(target: target, configuration: configuration)
         }
 
         switch component {
