@@ -25,6 +25,8 @@ struct IncrementVersionNumber: ParsableCommand {
         let pbxproj = try PBXProj(from: project, using: runner)
         let pbxprojValue: PBXProj.BuildSetting = .MARKETING_VERSION
         
+        var messages: [String] = []
+
         for (configuration, buildConfig) in pbxproj.configurations {
             let currentValue = try runner.extract(.pbxproj(pbxprojValue), from: buildConfig.value)
             
@@ -43,7 +45,17 @@ struct IncrementVersionNumber: ParsableCommand {
                     filePath: pbxproj.filePath
                 )
             )
+            
+            messages.append("Incremented \(component) version number from \(currentValue) to \(newValue)")
         }
+        
+        guard
+            let firstMessage = messages.first
+        else {
+            return
+        }
+        
+        throw CleanExit.message(firstMessage)
     }
 }
 
