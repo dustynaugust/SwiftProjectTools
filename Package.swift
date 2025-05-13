@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftProjectTools",
     platforms: [
-        .macOS(.v15),
+        .macOS(.v14),
     ],
     products: [
         .executable(name: "swift-project-tools", targets: ["swift-project-tools"]),
