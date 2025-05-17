@@ -46,7 +46,7 @@ struct IncrementVersionNumber: ParsableCommand {
                 )
             )
             
-            messages.append("Incremented \(component) version number from \(currentValue) to \(newValue) in \(configuration) configuration")
+            messages.append("Incremented \(component) version number from \(currentValue) to \(newValue) in \(configuration) configuration.")
         }
         
         guard
