@@ -39,10 +39,19 @@ private extension ActionRunner {
         
         log(action: action.value)
         
-        if let input {
+        if let input,
+            let inputData = input.data(using: .utf8) {
             let inputPipe = Pipe()
-            inputPipe.fileHandleForWriting.write(input.data(using: .utf8)!)
-            inputPipe.fileHandleForWriting.closeFile()
+            inputPipe.fileHandleForWriting.writeabilityHandler = { handle in
+                do {
+                    try handle.write(contentsOf: inputData)
+                    handle.closeFile()
+
+                } catch {
+                    output(error.localizedDescription)
+                }
+            }
+
             task.standardInput = inputPipe
         }
 

@@ -46,16 +46,16 @@ struct IncrementVersionNumber: ParsableCommand {
                 )
             )
             
-            messages.append("Incremented \(component) version number from \(currentValue) to \(newValue)")
+            messages.append("Incremented \(component) version number from \(currentValue) to \(newValue) in \(configuration) configuration")
         }
         
         guard
-            let firstMessage = messages.first
+            !messages.isEmpty
         else {
-            return
+            throw ExitCode.failure
         }
         
-        throw CleanExit.message(firstMessage)
+        throw CleanExit.message(messages.joined(separator: "\n"))
     }
 }
 
