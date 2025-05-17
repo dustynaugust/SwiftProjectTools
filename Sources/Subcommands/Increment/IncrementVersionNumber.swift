@@ -14,18 +14,29 @@ struct IncrementVersionNumber: ParsableCommand {
         abstract: "Increment project version."
     )
     
-    @Argument(help: "The version component to increment (major, minor, patch)")
+    @Argument(
+        help: ArgumentHelp(
+            "The version component to increment.",
+            valueName: "component"
+        )
+    )
     var component: SemanticVersionNumber.Component
     
     @OptionGroup
-    var project: ProjectOptions
+    var sharedOptions: SharedOptions
     
     mutating func run() throws {
-        let runner = ActionRunner(loggingEnabled: project.loggingEnabled)
-        let pbxproj = try PBXProj(from: project, using: runner)
+        let loggingEnabled: Bool
+#if DEBUG
+        loggingEnabled = sharedOptions.loggingEnabled
+#else
+        loggingEnabled = false
+#endif
+        let runner = ActionRunner(loggingEnabled: loggingEnabled)
+        let pbxproj = try PBXProj(from: sharedOptions, using: runner)
         let pbxprojValue: PBXProj.BuildSetting = .MARKETING_VERSION
         
-        var messages: [String] = []
+        var changes: [Output.VersionChange] = []
 
         for (configuration, buildConfig) in pbxproj.configurations {
             let currentValue = try runner.extract(.pbxproj(pbxprojValue), from: buildConfig.value)
@@ -33,7 +44,7 @@ struct IncrementVersionNumber: ParsableCommand {
             let newValue = try incremented(
                 versionNumber: component,
                 in: currentValue,
-                target: project.target,
+                target: sharedOptions.target,
                 configuration: configuration
             )
             
@@ -46,19 +57,32 @@ struct IncrementVersionNumber: ParsableCommand {
                 )
             )
             
-            messages.append("Incremented \(component) version number from \(currentValue) to \(newValue) in \(configuration) configuration.")
+            changes.append(
+                Output.VersionChange(
+                    configuration: configuration,
+                    component: component,
+                    from: currentValue,
+                    to: newValue
+                )
+            )
         }
         
-        guard
-            !messages.isEmpty
-        else {
-            throw ExitCode.failure
+        switch sharedOptions.outputFormat {
+        case .text:
+            guard
+                !changes.isEmpty
+            else {
+                throw ExitCode.failure
+            }
+            
+            throw CleanExit.message(changes.map(\.message).joined(separator: "\n"))
+
+        case .json:
+            let data = try JSONEncoder().encode(changes)
+            throw CleanExit.message(String(decoding: data, as: UTF8.self))
         }
-        
-        throw CleanExit.message(messages.joined(separator: "\n"))
     }
 }
-
 
 private extension IncrementVersionNumber {
     private func incremented(
@@ -88,4 +112,3 @@ private extension IncrementVersionNumber {
         }
     }
 }
-

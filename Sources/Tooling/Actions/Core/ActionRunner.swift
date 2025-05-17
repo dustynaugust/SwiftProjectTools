@@ -37,19 +37,12 @@ private extension ActionRunner {
         task.arguments = ["-c", action.value]
         task.executableURL = URL(fileURLWithPath: "/bin/zsh")
         
-        log(action: action.value)
-        
         if let input,
             let inputData = input.data(using: .utf8) {
             let inputPipe = Pipe()
             inputPipe.fileHandleForWriting.writeabilityHandler = { handle in
-                do {
-                    try handle.write(contentsOf: inputData)
-                    handle.closeFile()
-
-                } catch {
-                    output(error.localizedDescription)
-                }
+                try? handle.write(contentsOf: inputData)
+                handle.closeFile()
             }
 
             task.standardInput = inputPipe
@@ -57,24 +50,22 @@ private extension ActionRunner {
 
         try task.run()
 
+        let data = try pipe.fileHandleForReading.readToEnd()
+        
         guard
-            let data = try pipe.fileHandleForReading.readToEnd()
+            let data
         else {
-            log("empty data returned from action: \(string(for: action.value))")
             return ""
         }
-
+        
         guard
             let output = String(data: data, encoding: .utf8)
         else {
             let error = SwiftProjectToolsError.parseActionOutputError
-            output(error)
             throw error
         }
 
-        let result = output.trimmingCharacters(in: .whitespacesAndNewlines)
-        log(result: result)
-        return result
+        return output.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     private func output(

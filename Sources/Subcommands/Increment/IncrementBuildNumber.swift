@@ -15,11 +15,17 @@ struct IncrementBuildNumber: ParsableCommand {
     )
     
     @OptionGroup
-    var project: ProjectOptions
+    var sharedOptions: SharedOptions
     
     mutating func run() throws {
-        let runner = ActionRunner(loggingEnabled: project.loggingEnabled)
-        let pbxproj = try PBXProj(from: project, using: runner)
+        let loggingEnabled: Bool
+#if DEBUG
+        loggingEnabled = sharedOptions.loggingEnabled
+#else
+        loggingEnabled = false
+#endif
+        let runner = ActionRunner(loggingEnabled: loggingEnabled)
+        let pbxproj = try PBXProj(from: sharedOptions, using: runner)
         let buildSetting: PBXProj.BuildSetting = .CURRENT_PROJECT_VERSION
         
         for (configuration, buildConfig) in pbxproj.configurations {
@@ -27,7 +33,7 @@ struct IncrementBuildNumber: ParsableCommand {
             
             let newValue = try incremented(
                 buildNumber: currentValue,
-                target: project.target,
+                target: sharedOptions.target,
                 configuration: configuration
             )
             
