@@ -67,19 +67,29 @@ struct IncrementVersionNumber: ParsableCommand {
             )
         }
         
+        let fallbackMessage = "Incremented \(component.rawValue) version number."
         switch sharedOptions.outputFormat {
         case .text:
             guard
                 !changes.isEmpty
             else {
-                throw ExitCode.failure
+                throw CleanExit.message(fallbackMessage)
             }
             
             throw CleanExit.message(changes.map(\.message).joined(separator: "\n"))
 
         case .json:
-            let data = try JSONEncoder().encode(changes)
-            throw CleanExit.message(String(decoding: data, as: UTF8.self))
+            let message = String(
+                decoding: try JSONEncoder().encode(changes),
+                as: UTF8.self
+            )
+            
+            if !message.isEmpty {
+                throw CleanExit.message(message)
+                
+            } else {
+                throw CleanExit.message(fallbackMessage)
+            }
         }
     }
 }
